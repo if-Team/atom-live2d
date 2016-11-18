@@ -9,7 +9,7 @@ module.exports = {
 	config: {
 		model: {
 			type: "string",
-			"default": "~/.atom/packages/atom-live2d/assets/epsilon_2.1/Epsilon2.1.model.json",
+			"default": "epsilon_2.1/Epsilon2.1.model.json",
 			description: "model.json file of your model.",
 			order: 1
 		},
@@ -62,8 +62,8 @@ module.exports = {
 		},
 		modelOpacity: {
 			type: "number",
-			min: 0.0,
-			max: 1.0,
+			minimum: 0.0,
+			maximum: 1.0,
 			"default": 0.7,
 			description: "Opacity of model",
 			order: 3
@@ -108,14 +108,14 @@ module.exports = {
 		},
 		width: {
 			type: "number",
-			"default": 1024,
+			"default": 360,
 			minimum: 0,
 			description: "Width of your canvas.",
 			order: 7
 		},
 		height: {
 			type: "number",
-			"default": 1024,
+			"default": 480,
 			minimum: 0,
 			description: "Height of your canvas.",
 			order: 8
@@ -125,6 +125,12 @@ module.exports = {
 			"default": "~/.atom/packages/atom-live2d/assets/",
 			description: "Path to assetsdir",
 			order: 9
+		},
+		followCursor: {
+			type: "boolean",
+			"default": true,
+			description: "If it is true, the model will see your cursor.",
+			order: 10
 		}
 	},
 	timer: null,
@@ -172,7 +178,7 @@ module.exports = {
 	serialize: function() {},
 	loadConfig: function(model) {
 		var data;
-		var p = path.join(this.getAssetsDirPath(), path.dirname(model), 'config.json');
+		var p = path.join(this.getAssetsDirPath(), path.dirname(model), 'atom-l2d-conf.json');
 		if (fs.existsSync(p)) data = require(p);
 
 		if (data != null) {
@@ -181,36 +187,69 @@ module.exports = {
 	},
 	init: function() {
 		this.element = document.createElement('style');
-		this.element.textContent = ` .live-2d #glcanvas {
+		this.element.textContent = ` /*.live-2d .item-views /deep/ #glcanvas {
 			display: inline-block;
 			opacity: ${atom.config.get("atom-live2d.modelOpacity")};
 		}
 
 		#glcanvas {
 			display: none;
+		}*/
+
+		iframe#live2d {
+			display: none;
+		}
+
+		.live-2d iframe#live2d {
+			opacity: ${atom.config.get("atom-live2d.modelOpacity")};
+			width: ${atom.config.get("atom-live2d.width")}px;
+			height: ${atom.config.get("atom-live2d.height")}px;
 		}`;
 
-		this.glcanvas = document.createElement('canvas');
-		this.glcanvas.id = 'glcanas';
-		atom.views.getView(atom.workspace).ownerDocument.querySelector('.item-views /deep/ .editor--private:not(.mini) .scroll-view').appendChild(this.glcanvas);
+		/*this.glcanvas = document.createElement('canvas');
+		this.glcanvas.id = 'glcanvas';
+		atom.views.getView(atom.workspace).ownerDocument.querySelector('.item-views /deep/ .editor--private:not(.mini) .scroll-view').appendChild(this.glcanvas);*/
 
 		atom.views.getView(atom.workspace).appendChild(this.element);
 
-		this.scripts = [
+		this.iframe = document.createElement('iframe');
+		this.iframe.src = `atom://atom-live2d/index.html`;
+		this.iframe.name = `${atom.config.get("atom-live2d.width")};${atom.config.get("atom-live2d.height")}`;
+		this.iframe.id = 'live2d';
+		this.iframe.onload = () => {
+			this.loadCurrentModel();
+			this.loadMotionGroup();
+			this.iframe.contentWindow.document.body.appendChild(css);
+			if(atom.config.get('atom-live2d.followCursor'))
+				atom.views.getView(atom.workspace).addEventListener('mousemove', (e) => {
+					if(atom.config.get('atom-live2d.followCursor'))
+						this.callOnWindow('followPointer', e);
+				});
+		};
+
+		var css = document.createElement('style');
+		css.innerHTML = `
+			#glcanvas {
+				width: ${atom.config.get("atom-live2d.width")}px;
+				height: ${atom.config.get("atom-live2d.height")}px;
+			}
+		`;
+
+		atom.views.getView(atom.workspace).appendChild(this.iframe);
+
+		/*[
 			'lib/live2d.min',
 			'lib/live2d_framework',
 			'src/utils/MatrixStack',
 			'src/utils/ModelSettingJSON',
-			'src/PlatormManager',
+			'src/PlatformManager',
 			'src/LAppDefine',
 			'src/LAppModel',
 			'src/LAppLive2DManager',
 			'src/AtomLive2D'
-		].map((v) => 'atom://atom-live2d/' + v + '.js').forEach((v) => {
-			var script = document.createElement('script');
-			script.src = v;
-			atom.views.getView(atom.workspace).appendChild(script);
-		});
+		].map((v) => path.join(atom.packages.resolvePackagePath('atom-live2d'),  v + '.js')).forEach((v) => {
+			this.evalOnWindow(fs.readFileSync(v));
+		});*/
 
 		if(atom.config.get("atom-live2d.timeSignal").length > 0) {
 			this.timer = new CronJob('00 00 * * * *', this.timeSignal.bind(this), null, true);
@@ -221,9 +260,6 @@ module.exports = {
 				this.showMotion('wink');
 			};
 		}
-
-		this.loadCurrentModel();
-		this.loadMotionGroup();
 	},
 	reload: function() {
 		this.deactivate();
@@ -288,10 +324,10 @@ module.exports = {
 			setTimeout(() => {
 				switch(regex[1]){
 					case 'motion':
-						this.evalOnWinow(`showMotion('${regex[2]}');`);
+						this.callOnWindow('showRandomMotion', regex[2]);
 
 					case 'exp':
-						this.evalOnWindow(`showExpression('${regex[2]}');`);
+						this.callOnWindow('showExpression', regex[2]);
 				}
 			}, index[regex[1]]);
 		});
@@ -303,15 +339,19 @@ module.exports = {
 				var regex = v.match(MOTION_REGEX);
 
 				if(regex === null) return;
-				if(regex[1] === 'motion') this.evalOnWinow(`loadMotionGroup('${regex[2]}')`);
+				if(regex[1] === 'motion') this.callOnWindow('loadMotionGroup', regex[2]);
 			});
 		});
 	},
 	loadCurrentModel: function() {
-		this.evalOnWindow(`atomLive2d('${atom.config.get('atom-live2d.model')}')`);
+		this.callOnWindow('atomLive2d', 'atom://atom-live2d/assets/' + atom.config.get('atom-live2d.model'));
+		console.log('Evaluating init script...');
 	},
-	evalOnWindow: function(source) {
-		return remote.getCurrentWindow().webContents.executeJavaScript(source);
+	callOnWindow: function(funcname, ...args) {
+		if(this.iframe.contentWindow[funcname] === undefined)
+			return console.log('Skipped undefined function (plz wait for a sec!): ', funcname)
+		//return atom.getCurrentWindow().webContents.executeJavaScript(source);
+		return this.iframe.contentWindow[funcname](...args);
 	},
 	getThemeDir: function() {
 		return path.dirname(atom.config.get('atom-live2d.model'));

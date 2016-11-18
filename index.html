@@ -1,16 +1,35 @@
 <html>
-<head>
-	<meta charset="UTF-8">
-	<title>WebGL</title>
-	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
-	<meta name="apple-mobile-web-app-capable" content="yes"/>
-	<link href="styles/main.css" rel="stylesheet" type="text/css">
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8">
+		<title>WebGL</title>
+		<style>
+			#glcanvas {
+				position: fixed;
+				bottom: 0;
+				right: 0;
+			}
+		</style>
+	</head>
+	<body>
 	    <div id="canvas_box">
-			<canvas id="glcanvas" width="1024px" height="1024px"></canvas>
+			<canvas id="glcanvas"></canvas>
 			<div id="dummy_box"></div>
 		</div>
+
+		<script>
+			(function(){
+				var split = name.split(';');
+				var _glcanvas = document.querySelector('#glcanvas');
+				var _w = parseInt(split[0]);
+				var _h = parseInt(split[1]);
+
+				var height = _h * 1024 / _w;
+				var width = 1024;
+
+				_glcanvas.setAttribute('width', width + 'px');
+				_glcanvas.setAttribute('height', height + 'px');
+			})();
+		</script>
 
 		<script src="lib/live2d.min.js"></script>
 		<script src="lib/live2d_framework.js"></script>
@@ -21,11 +40,5 @@
 		<script src="src/LAppModel.js"></script>
 		<script src="src/LAppLive2DManager.js"></script>
 		<script src="src/AtomLive2D.js"></script>
-		<script>
-			var model = "katou_01/katou_01.model.json";
-			document.querySelector('body').onload = function(){
-				atomLive2d(model);
-			};
-		</script>
 	</body>
 </html>

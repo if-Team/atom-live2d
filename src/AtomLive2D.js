@@ -1,9 +1,9 @@
-var thisRef = this;
-
+var l2dthisRef = this;
 // JavaScriptで発生したエラーを取得
 
 function atomLive2d(model)
 {
+	console.log("우리의 핵심목표는 이것이다 : " + model);
 	this.platform = window.navigator.platform.toLowerCase();
 
 	this.live2DMgr = new LAppLive2DManager();
@@ -40,7 +40,7 @@ function initL2dCanvas(canvasId)
 	this.canvas = document.getElementById(canvasId);
 
 	// イベントの登録
-	if(this.canvas.addEventListener) {
+	/*if(this.canvas.addEventListener) {
 		this.canvas.addEventListener("mousewheel", mouseEvent, false);
 		this.canvas.addEventListener("click", mouseEvent, false);
 
@@ -56,7 +56,7 @@ function initL2dCanvas(canvasId)
 		this.canvas.addEventListener("touchend", touchEvent, false);
 		this.canvas.addEventListener("touchmove", touchEvent, false);
 
-	}
+	}*/
 }
 
 
@@ -137,7 +137,7 @@ function startDraw() {
 
 function draw()
 {
-	// l2dLog("--> draw()");
+	 l2dLog("--> draw()");
 
 	MatrixStack.reset();
 	MatrixStack.loadIdentity();
@@ -190,47 +190,47 @@ function changeModel(model)
  */
 
 function loadMotionGroup(motionGroup){
-	var model = thisRef.live2DMgr.getModel(0);
+	var model = l2dthisRef.live2DMgr.getModel(0);
 	if(model == null) return;
 
 	model.preloadMotionGroup(motionGroup);
 }
 
 function showExpression(exp){
-	var model = thisRef.live2DMgr.getModel(0);
+	var model = l2dthisRef.live2DMgr.getModel(0);
 	if(model == null) return;
 
 	model.setExpression(exp);
 }
 
 function showRandomMotion(motionGroup){
-	var model = thisRef.live2DMgr.getModel(0);
+	var model = l2dthisRef.live2DMgr.getModel(0);
 	if(model == null) return;
 
-	model.showRandomMotion(motionGroup, LAppDefine.PRIORITY_NORMAL);
+	model.startRandomMotion(motionGroup, LAppDefine.PRIORITY_NORMAL);
 }
 
 function modelScaling(scale)
 {
-	var isMaxScale = thisRef.viewMatrix.isMaxScale();
-	var isMinScale = thisRef.viewMatrix.isMinScale();
+	var isMaxScale = l2dthisRef.viewMatrix.isMaxScale();
+	var isMinScale = l2dthisRef.viewMatrix.isMinScale();
 
-	thisRef.viewMatrix.adjustScale(0, 0, scale);
+	l2dthisRef.viewMatrix.adjustScale(0, 0, scale);
 
 	// 画面が最大になったときのイベント
 	if (!isMaxScale)
 	{
-		if (thisRef.viewMatrix.isMaxScale())
+		if (l2dthisRef.viewMatrix.isMaxScale())
 		{
-			thisRef.live2DMgr.maxScaleEvent();
+			l2dthisRef.live2DMgr.maxScaleEvent();
 		}
 	}
 	// 画面が最小になったときのイベント
 	if (!isMinScale)
 	{
-		if (thisRef.viewMatrix.isMinScale())
+		if (l2dthisRef.viewMatrix.isMinScale())
 		{
-			thisRef.live2DMgr.minScaleEvent();
+			l2dthisRef.live2DMgr.minScaleEvent();
 		}
 	}
 }
@@ -242,7 +242,7 @@ function modelScaling(scale)
  */
 function modelTurnHead(event)
 {
-	thisRef.drag = true;
+	l2dthisRef.drag = true;
 
 	var rect = event.target.getBoundingClientRect();
 
@@ -254,13 +254,13 @@ function modelTurnHead(event)
 	if (LAppDefine.DEBUG_MOUSE_LOG)
 		l2dLog("onMouseDown device( x:" + event.clientX + " y:" + event.clientY + " ) view( x:" + vx + " y:" + vy + ")");
 
-	thisRef.lastMouseX = sx;
-	thisRef.lastMouseY = sy;
+	l2dthisRef.lastMouseX = sx;
+	l2dthisRef.lastMouseY = sy;
 
-	thisRef.dragMgr.setPoint(vx, vy); // その方向を向く
+	l2dthisRef.dragMgr.setPoint(vx, vy); // その方向を向く
 
 	// タップした場所に応じてモーションを再生
-	thisRef.live2DMgr.tapEvent(vx, vy);
+	l2dthisRef.live2DMgr.tapEvent(vx, vy);
 }
 
 
@@ -279,13 +279,13 @@ function followPointer(event)
 	if (LAppDefine.DEBUG_MOUSE_LOG)
 		l2dLog("onMouseMove device( x:" + event.clientX + " y:" + event.clientY + " ) view( x:" + vx + " y:" + vy + ")");
 
-	if (thisRef.drag)
-	{
-		thisRef.lastMouseX = sx;
-		thisRef.lastMouseY = sy;
+	//if (l2dthisRef.drag)
+	//{
+		l2dthisRef.lastMouseX = sx;
+		l2dthisRef.lastMouseY = sy;
 
-		thisRef.dragMgr.setPoint(vx, vy); // その方向を向く
-	}
+		l2dthisRef.dragMgr.setPoint(vx, vy); // その方向を向く
+	//}
 }
 
 
@@ -294,16 +294,16 @@ function followPointer(event)
  */
 function lookFront()
 {
-	if (thisRef.drag)
+	if (l2dthisRef.drag)
 	{
-		thisRef.drag = false;
+		l2dthisRef.drag = false;
 	}
 
-	thisRef.dragMgr.setPoint(0, 0);
+	l2dthisRef.dragMgr.setPoint(0, 0);
 }
 
 
-function mouseEvent(e)
+/*function mouseEvent(e)
 {
 	e.preventDefault();
 
@@ -315,7 +315,6 @@ function mouseEvent(e)
 		modelTurnHead(e);
 
 	} else if (e.type == "mousemove") {
-
 		followPointer(e);
 
 	} else if (e.type == "mouseup") {
@@ -347,21 +346,21 @@ function touchEvent(e)
 	} else if (e.type == "touchmove") {
 		followPointer(touch);
 
-		/*if (e.touches.length == 2) {
+		if (e.touches.length == 2) {
 			var touch1 = e.touches[0];
 			var touch2 = e.touches[1];
 
 			var len = Math.pow(touch1.pageX - touch2.pageX, 2) + Math.pow(touch1.pageY - touch2.pageY, 2);
-			if (thisRef.oldLen - len < 0) modelScaling(1.025); // 上方向スクロール 拡大
+			if (l2dthisRef.oldLen - len < 0) modelScaling(1.025); // 上方向スクロール 拡大
 			else modelScaling(0.975); // 下方向スクロール 縮小
 
 			thisRef.oldLen = len;
-		}*/
+		}
 
 	} else if (e.type == "touchend") {
 		lookFront();
 	}
-}
+}*/
 
 
 /* ********** マトリックス操作 ********** */
