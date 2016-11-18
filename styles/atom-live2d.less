@@ -1,0 +1,19 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+.live-2d {
+  .item-views > :not(div) {
+      /deep/ .editor--private:not(.mini) .scroll-view {
+        #glcanvas {
+          opacity: 0.3;
+          bottom: 0;
+          right: 0;
+          position: absolute;
+          z-index: 2;
+        }
+      }
+  }
+ }
