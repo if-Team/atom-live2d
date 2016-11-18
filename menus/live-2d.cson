@@ -3,7 +3,7 @@
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'Live2DS'
+      'label': 'Live2D'
       'submenu': [
         { 'label': 'Toggle', 'command': 'atom-live2d:toggle' },
       ]

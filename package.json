@@ -1,9 +1,9 @@
 {
-  "name": "atom-pronama-chan",
-  "main": "./lib/pronama-chan",
-  "version": "1.0.1",
-  "description": "Add Pronama Chan to your editor",
-  "repository": "https://github.com/hurumeki/atom-pronama-chan",
+  "name": "atom-live2d",
+  "main": "./src/index.js",
+  "version": "0.0.0",
+  "description": "A package which adds live2d models to your atom!",
+  "repository": "https://github.com/if-Team/atom-live2d",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"

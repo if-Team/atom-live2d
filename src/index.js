@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const remote = require('remote');
 const browserWindow = remote.require('browser-window');
-const {CronJob} = require('cron');
+const CronJob = require('cron').CronJob;
 
 const MOTION_REGEX = /\((motion|randmotgroup|exp):(.*)\)/;
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
 			order: 1
 		},
 		expressions: {
-			type: "object"
+			type: "object",
 			properties: {
 				info: {
 					type: "string",
@@ -119,6 +119,12 @@ module.exports = {
 			minimum: 0,
 			description: "Height of your canvas.",
 			order: 8
+		},
+		assetsDir: {
+			type: "string",
+			"default": "~/.atom/packages/atom-live2d/assets/",
+			description: "Path to assetsdir",
+			order: 9
 		}
 	},
 	timer: null,
@@ -138,7 +144,7 @@ module.exports = {
 		atom.views.getView(atom.workspace).classList.add("live-2d");
 		atom.notifications.onDidAddNotification((function(_this) {
 			return function(notification) {
-				return _this.showMotion(notification);
+				return _this.showMotion(notification.type);
 			};
 		})(this));
 
@@ -186,7 +192,7 @@ module.exports = {
 
 		this.glcanvas = document.createElement('canvas');
 		this.glcanvas.id = 'glcanas';
-		document.querySelector('.item-views /deep/ .editor--private:not(.mini) .scroll-view').appendChild(this.glcanvas);
+		atom.views.getView(atom.workspace).ownerDocument.querySelector('.item-views /deep/ .editor--private:not(.mini) .scroll-view').appendChild(this.glcanvas);
 
 		atom.views.getView(atom.workspace).appendChild(this.element);
 
@@ -200,7 +206,7 @@ module.exports = {
 			'src/LAppModel',
 			'src/LAppLive2DManager',
 			'src/AtomLive2D'
-		].map((v) => return 'atom://atom-live2d/' + v + '.js').forEach((v) => {
+		].map((v) => 'atom://atom-live2d/' + v + '.js').forEach((v) => {
 			var script = document.createElement('script');
 			script.src = v;
 			atom.views.getView(atom.workspace).appendChild(script);
@@ -213,7 +219,7 @@ module.exports = {
 		if(atom.config.get("atom-live2d.expressions.wink")) {
 			return this.winkTimer = () => {
 				this.showMotion('wink');
-			});
+			};
 		}
 
 		this.loadCurrentModel();
@@ -272,7 +278,7 @@ module.exports = {
 	showMotion: function(motionString){
 		var exp = atom.config.get("atom-live2d.expressions");
 		var index = {};
-		exp[k].split(';').forEach((v) => {
+		exp[motionString].split(';').forEach((v) => {
 			var regex = v.match(MOTION_REGEX);
 
 			if(regex === null) return;
@@ -292,7 +298,7 @@ module.exports = {
 	},
 	loadMotionGroup: function(){
 		var exp = atom.config.get("atom-live2d.expressions");
-		Object.keys().forEach((k) => {
+		Object.keys(exp).forEach((k) => {
 			exp[k].split(';').forEach((v) => {
 				var regex = v.match(MOTION_REGEX);
 
@@ -305,7 +311,7 @@ module.exports = {
 		this.evalOnWindow(`atomLive2d('${atom.config.get('atom-live2d.model')}')`);
 	},
 	evalOnWindow: function(source) {
-		return remote.getCurrentWindow().webContents.executeJavascript(source);
+		return remote.getCurrentWindow().webContents.executeJavaScript(source);
 	},
 	getThemeDir: function() {
 		return path.dirname(atom.config.get('atom-live2d.model'));
