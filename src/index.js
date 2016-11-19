@@ -4,7 +4,14 @@ const remote = require('remote');
 const browserWindow = remote.require('browser-window');
 const CronJob = require('cron').CronJob;
 
-const MOTION_REGEX = /\((motion|randmotgroup|exp):(.*)\)/;
+const MOTION_REGEX = /\((motion|wink|exp):(.*)\)/;
+const BEFORE_CLOSE = 0;
+const CLOSE_ANIMATE = 1;
+const CLOSE = 2;
+const OPEN_ANIMATE = 3;
+const OPEN = 3;
+
+const EYE_PARAM = 'PARAM_EYE_L_OPEN';
 module.exports = {
 	config: {
 		model: {
@@ -49,7 +56,7 @@ module.exports = {
 				wink: {
 					type: "string",
 					"default": "",
-					description: "Expession or motion of wink."
+					description: "Expession or motion of wink. example: (motion:angry);(wink:do)"
 				},
 
 				time: {
@@ -325,12 +332,49 @@ module.exports = {
 				switch(regex[1]){
 					case 'motion':
 						this.callOnWindow('showRandomMotion', regex[2]);
+						break;
 
 					case 'exp':
 						this.callOnWindow('showExpression', regex[2]);
+						break;
+
+					case 'wink':
+						this.wink();
+						break;
 				}
 			}, index[regex[1]]);
 		});
+	},
+	wink: function(){
+		var waitForNextBlink = () => {
+			if(live2DMgr.models[0].eyeBlink.nextBlinkTime > UtSystem.getUserTimeMSec()) setTimeout(waitForNextBlink, 50);
+			else this.doWinkImmediate();
+		};
+	},
+	doWinkImmediate: function(){
+		var startValue = currModel.getParamFloat(EYE_PARAM);
+
+		var currModel = live2DMgr.models[0].live2DModel;
+		currModel.nextBlinkTime += 1000;
+		var currState = BEFORE_CLOSE;
+		var currValue = startValue;
+		var animateAmount = startValue / 40;
+
+		var animateOpening = () => {
+			if(currValue >= startValue) return;
+			currValue += animateAmount;
+			currModel.setParamFloat(EYE_PARAM, currValue);
+			setTimeout(animateOpening, 10);
+		};
+
+		var animateClosing = () => {
+			if(currValue <= 0) setTimeout(animateOpening, 200);
+			currValue -= animateAmount;
+			currModel.setParamFloat(EYE_PARAM, currValue);
+			setTimeout(animateClosing, 10);
+		};
+
+		animateClosing();
 	},
 	loadMotionGroup: function(){
 		var exp = atom.config.get("atom-live2d.expressions");
