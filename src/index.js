@@ -11,7 +11,7 @@ const CLOSE = 2;
 const OPEN_ANIMATE = 3;
 const OPEN = 3;
 
-const EYE_PARAM = 'PARAM_EYE_L_OPEN';
+const EYE_PARAM = 'PARAM_EYE_R_OPEN';
 module.exports = {
 	config: {
 		model: {
@@ -56,7 +56,7 @@ module.exports = {
 				wink: {
 					type: "string",
 					"default": "",
-					description: "Expession or motion of wink. example: (motion:angry);(wink:do)"
+					description: "Expession or motion of wink. example: (motion:fun);(wink:do)"
 				},
 
 				time: {

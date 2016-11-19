@@ -49,6 +49,9 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
 
+### Live2D WebGL
+Please refer to [License](http://live2d.com/sdk_license_cubism)
+
 ### Used Live2D Sample
 License:
 ```
