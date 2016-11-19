@@ -1,5 +1,6 @@
 var l2dthisRef = this;
 // JavaScriptで発生したエラーを取得
+const EYE_PARAM = 'PARAM_EYE_R_OPEN';
 
 function atomLive2d(model)
 {
@@ -188,6 +189,41 @@ function changeModel(model)
 /*
  * マウスホイールによる拡大縮小
  */
+
+function wink(){
+	var waitForNextBlink = () => {
+		if(live2DMgr.models[0].eyeBlink.nextBlinkTime >= UtSystem.getUserTimeMSec()) setTimeout(waitForNextBlink, 50);
+		else doWinkImmediate();
+	};
+
+	waitForNextBlink();
+}
+
+function doWinkImmediate(){
+	var currModel = live2DMgr.models[0].live2DModel;
+	live2DMgr.models[0].eyeBlink.nextBlinkTime += 1000;
+	live2DMgr.models[0].eyeBlink.eyeState = EYE_STATE.STATE_INTERVAL;
+
+	var startValue = currModel.getParamFloat(EYE_PARAM);
+	var currValue = startValue;
+	var animateAmount = startValue / 40;
+
+	var animateOpening = () => {
+		if(currValue >= startValue) return;
+		currValue += animateAmount;
+		currModel.setParamFloat(EYE_PARAM, currValue);
+		setTimeout(animateOpening, 10);
+	};
+
+	var animateClosing = () => {
+		if(currValue <= 0) return setTimeout(animateOpening, 200);
+		currValue -= animateAmount;
+		currModel.setParamFloat(EYE_PARAM, currValue);
+		setTimeout(animateClosing, 10);
+	};
+
+	animateClosing();
+}
 
 function loadMotionGroup(motionGroup){
 	var model = l2dthisRef.live2DMgr.getModel(0);
