@@ -26,7 +26,7 @@ If the console says that apm is not a file or a folder, change it to
   - Example : `~/assets/katou_01/katou_01.model.json`,
 type `katou_01/katou_01.model.json`.
 
-### Example `hibiki.model.json`
+## Example `hibiki.model.json`
 ```json
 {
 	"version":"Sample 1.0.0",
