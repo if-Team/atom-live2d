@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const remote = require('remote');
-const browserWindow = remote.require('browser-window');
+const browserWindow = remote.BrowserWindow;
 const CronJob = require('cron').CronJob;
 
 const MOTION_REGEX = /\((motion|wink|exp):(.*)\)/;
