@@ -2,32 +2,22 @@
 A package which adds live2d models to your atom!
 
 ## Features
-- [x] ~~Shows a Live2D Model.~~
-- [x] ~~Watches your cursor.~~
-- [ ] Supports voice.  
-- [x] ~~Plays a motion on notification.~~
+- [x] Shows a Live2D Model.
+- [x] Watches your cursor.
+- [x] Supports voice.  
+- [x] Plays a motion on notification.
 
-## How To
-### Install atom-live2d
+## How to Install atom-live2d
 ```bash
-$ git clone https://github.com/if-Team/atom-live2d.git && cd atom-live2d
-$ npm install && apm link
+$ apm install atom-live2d
 ```
 
-If the console says that apm is not a file or a folder, change it to
-`/path/to/atom/resources/app/apm/bin/apm`
+## Set the Live2D model
+Put the `model.json` of live 2d model address in the settings.
 
-### Download Live2D models
-[Google it!](https://www.google.com/search?sourceid=chrome-psyapi2&ion=1&espv=2&ie=UTF-8&q=live2d%20models&oq=live2d%20models) or create your own Live2D model
+- Example : `~/assets/model_name/model_name.model.json`, type `model_name/model_name.model.json`.
 
-### Set the Live2D model
-1. Put the `model.json` of model address in the settings.
-
-  - Example : `~/assets/katou_01/katou_01.model.json`,
-type `katou_01/katou_01.model.json`.
-
-## Example
-`hibiki.model.json`
+### Example: [`hibiki.model.json`](http://sandwichproject.com)
 ```json
 {
 	"version":"Sample 1.0.0",
