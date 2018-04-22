@@ -170,6 +170,7 @@ module.exports = {
 		var ref;
 		this.audio = null;
 		this.element.remove();
+		this.iframe.remove();
 		if ((ref = this.timer) != null) {
 			ref.stop();
 		}
@@ -236,7 +237,7 @@ module.exports = {
 			}
 		`;
 
-		atom.views.getView(atom.workspace).appendChild(this.iframe);
+		atom.views.getView(atom.workspace).querySelector('atom-workspace-axis.vertical>atom-pane-container.panes atom-pane.pane').appendChild(this.iframe);
 
 		/*[
 			'lib/live2d.min',
@@ -268,6 +269,7 @@ module.exports = {
 		return this.init();
 	},
 	toggle: function() {
+		this.iframe.contentWindow.postMessage('toggle', '*');
 		return atom.views.getView(atom.workspace).classList.toggle("live-2d");
 	},
 	startVoice: function(d) {

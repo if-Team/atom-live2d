@@ -1,6 +1,7 @@
 var l2dthisRef = this;
 // JavaScriptで発生したエラーを取得
 const EYE_PARAM = 'PARAM_EYE_R_OPEN';
+let drawing = true;
 
 function atomLive2d(model)
 {
@@ -32,6 +33,10 @@ function atomLive2d(model)
 
 	// モデル用マトリクスの初期化と描画の開始
 	init(model);
+	
+	window.addEventListener('message', () => {
+		drawing = !drawing;
+	}, false);
 }
 
 
@@ -121,7 +126,7 @@ function startDraw() {
 	if(!this.isDrawStart) {
 		this.isDrawStart = true;
 		(function tick() {
-				draw(); // 1回分描画
+				if(drawing) draw(); // 1回分描画
 
 				var requestAnimationFrame =
 					window.requestAnimationFrame ||
