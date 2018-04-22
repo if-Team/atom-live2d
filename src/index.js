@@ -170,6 +170,7 @@ module.exports = {
 		var ref;
 		this.audio = null;
 		this.element.remove();
+		this.iframe.remove();
 		if ((ref = this.timer) != null) {
 			ref.stop();
 		}
