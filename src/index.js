@@ -69,6 +69,14 @@ module.exports = {
 			description: "Opacity of model",
 			order: 3
 		},
+		modelCursorOpacity: {
+			type: "number",
+			minimum: 0.0,
+			maximum: 1.0,
+			"default": 0.1,
+			description: "Opacity of model with curser over",
+			order: 4
+		},
 		startVoice: {
 			type: "object",
 			properties: {
@@ -88,7 +96,7 @@ module.exports = {
 					description: "from 18:00 to 6:00"
 				}
 			},
-			order: 4
+			order: 5
 		},
 		timeSignal: {
 			type: "array",
@@ -97,7 +105,7 @@ module.exports = {
 				type: "string"
 			},
 			description: "Time signal voice filename. Array [0 - 23]",
-			order: 5
+			order: 6
 		},
 		voiceVolume: {
 			type: "number",
@@ -105,51 +113,51 @@ module.exports = {
 			minimum: 0.0,
 			maximum: 1.0,
 			description: "voice volume. between 0.0 and 1.0",
-			order: 6
+			order: 7
 		},
 		width: {
 			type: "number",
 			"default": 360,
 			minimum: 0,
 			description: "Width of your canvas.",
-			order: 7
+			order: 8
 		},
 		height: {
 			type: "number",
 			"default": 480,
 			minimum: 0,
 			description: "Height of your canvas.",
-			order: 8
+			order: 9
 		},
 		assetsDir: {
 			type: "string",
 			"default": "~/.atom/packages/atom-live2d/assets/",
 			description: "Path to assetsdir",
-			order: 9
+			order: 10
 		},
 		followCursor: {
 			type: "boolean",
 			"default": true,
 			description: "If it is true, the model will see your cursor.",
-			order: 10
+			order: 11
 		},
 		followCursorOffsetX: {
 			type: "number",
 			"default": 0,
 			description: "Offset the model's X-axis field of view",
-			order: 11
+			order: 12
 		},
 		followCursorOffsetY: {
 			type: "number",
 			"default": 0,
 			description: "Offset the model's Y-axis field of view",
-			order: 12
+			order: 13
 		},
 		followCursorCoefficient: {
 			type: "number",
 			"default": 2,
 			description: "Focus distance coefficient (closer to greater)",
-			order: 13
+			order: 14
 		}
 	},
 	timer: null,
@@ -224,13 +232,19 @@ module.exports = {
 			opacity: ${atom.config.get("atom-live2d.modelOpacity")};
 			width: ${atom.config.get("atom-live2d.width")}px;
 			height: ${atom.config.get("atom-live2d.height")}px;
+			transition: opacity .5s;
+		}
+
+		.live-2d iframe#live2d.cursor-over {
+			opacity: ${atom.config.get("atom-live2d.modelCursorOpacity")};
 		}`;
 
 		/*this.glcanvas = document.createElement('canvas');
 		this.glcanvas.id = 'glcanvas';
 		atom.views.getView(atom.workspace).ownerDocument.querySelector('.item-views /deep/ .editor--private:not(.mini) .scroll-view').appendChild(this.glcanvas);*/
 
-		atom.views.getView(atom.workspace).appendChild(this.element);
+		const workspaceView = atom.views.getView(atom.workspace);
+		workspaceView.appendChild(this.element);
 
 		this.iframe = document.createElement('iframe');
 		this.iframe.src = `atom://atom-live2d/index.html`;
@@ -241,7 +255,6 @@ module.exports = {
 			this.loadMotionGroup();
 			this.iframe.contentWindow.document.body.appendChild(css);
 			if(atom.config.get('atom-live2d.followCursor')) {
-				const workspaceView = atom.views.getView(atom.workspace);
 				workspaceView.addEventListener('mousemove', (e) => {
 					if(atom.config.get('atom-live2d.followCursor')) {
 						this.callOnWindow('followPointer', e, {
@@ -256,6 +269,35 @@ module.exports = {
 					}
 				});
 			}
+
+			const l2dView = workspaceView.querySelector('#live2d');
+			atom.workspace.observeTextEditors(editor => {
+				const callback = _ => {
+					const spriteStartX = workspaceView.clientWidth - atom.config.get("atom-live2d.width");
+					const spriteStartY = workspaceView.clientHeight - atom.config.get("atom-live2d.height");
+					const spriteEndX = workspaceView.clientWidth;
+					const spriteEndY = workspaceView.clientHeight;
+
+					var detect = false;
+					atom.views.getView(editor).querySelectorAll('.cursor').forEach(v => {
+						const rect = v.getBoundingClientRect();
+						if (spriteStartX < rect.left && spriteStartY < rect.top
+							&& spriteEndX > rect.left && spriteEndY > rect.top) {
+
+							detect = true;
+						}
+					});
+
+					if (detect && !l2dView.classList.contains('cursor-over')) {
+						l2dView.classList.add('cursor-over');
+					} else if (!detect && l2dView.classList.contains('cursor-over')) {
+						l2dView.classList.remove('cursor-over');
+					}
+				};
+				editor.onDidChangeCursorPosition(callback);
+				editor.onDidAddCursor(callback);
+				editor.onDidRemoveCursor(callback);
+			});
 		};
 
 		var css = document.createElement('style');
