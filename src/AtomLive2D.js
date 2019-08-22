@@ -33,7 +33,7 @@ function atomLive2d(model)
 
 	// モデル用マトリクスの初期化と描画の開始
 	init(model);
-	
+
 	window.addEventListener('message', () => {
 		drawing = !drawing;
 	}, false);
@@ -308,14 +308,27 @@ function modelTurnHead(event)
 /*
  * マウスを動かした時のイベント
  */
-function followPointer(event)
+// Edited by AtomLive2D Project
+function followPointer(event, options)
 {
-	var rect = event.target.getBoundingClientRect();
-
-	var sx = transformScreenX(event.clientX - rect.left);
-	var sy = transformScreenY(event.clientY - rect.top);
-	var vx = transformViewX(event.clientX - rect.left);
-	var vy = transformViewY(event.clientY - rect.top);
+  var sx, sy, vx, vy;
+  if (options) {
+    vx = event.clientX - options.screenWidth + options.spriteWidth/2 + options.spriteOffsetX;
+    sx = transformScreenX(vx);
+    vx = vx / options.screenWidth * options.followCursorCoefficient;
+    //vx = transformViewX(tmp);
+    vy = event.clientY - options.screenHeight + options.spriteHeight/2 + options.spriteOffsetY;
+    sy = transformScreenY(vy);
+    vy = vy / -options.screenHeight * options.followCursorCoefficient;
+    //vy = transformViewY(tmp);
+    //console.debug(vx, vy);
+  } else { // Fallback original method
+    var rect = event.target.getBoundingClientRect();
+  	sx = transformScreenX(event.clientX - rect.left);
+  	sy = transformScreenY(event.clientY - rect.top);
+  	vx = transformViewX(event.clientX - rect.left);
+  	vy = transformViewY(event.clientY - rect.top);
+  }
 
 	if (LAppDefine.DEBUG_MOUSE_LOG)
 		l2dLog("onMouseMove device( x:" + event.clientX + " y:" + event.clientY + " ) view( x:" + vx + " y:" + vy + ")");
