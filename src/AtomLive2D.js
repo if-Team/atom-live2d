@@ -311,24 +311,23 @@ function modelTurnHead(event)
 // Edited by AtomLive2D Project
 function followPointer(event, options)
 {
-  var sx, sy, vx, vy;
-  if (options) {
-    vx = event.clientX - options.screenWidth + options.spriteWidth/2 + options.spriteOffsetX;
-    sx = transformScreenX(vx);
-    vx = vx / options.screenWidth * options.followCursorCoefficient;
-    //vx = transformViewX(tmp);
-    vy = event.clientY - options.screenHeight + options.spriteHeight/2 + options.spriteOffsetY;
-    sy = transformScreenY(vy);
-    vy = vy / -options.screenHeight * options.followCursorCoefficient;
-    //vy = transformViewY(tmp);
-    //console.debug(vx, vy);
-  } else { // Fallback original method
-    var rect = event.target.getBoundingClientRect();
-  	sx = transformScreenX(event.clientX - rect.left);
-  	sy = transformScreenY(event.clientY - rect.top);
-  	vx = transformViewX(event.clientX - rect.left);
-  	vy = transformViewY(event.clientY - rect.top);
-  }
+	var sx, sy, vx, vy;
+	
+	if (options) {
+		vx = event.clientX - options.screenWidth + options.spriteWidth/2 + options.spriteOffsetX;
+		sx = transformScreenX(vx);
+		vx = vx / options.screenWidth * options.followCursorCoefficient;
+
+		vy = event.clientY - options.screenHeight + options.spriteHeight/2 + options.spriteOffsetY;
+		sy = transformScreenY(vy);
+		vy = vy / -options.screenHeight * options.followCursorCoefficient;
+	} else { // Fallback original method
+		var rect = event.target.getBoundingClientRect();
+		sx = transformScreenX(event.clientX - rect.left);
+		sy = transformScreenY(event.clientY - rect.top);
+		vx = transformViewX(event.clientX - rect.left);
+		vy = transformViewY(event.clientY - rect.top);
+ 	}
 
 	if (LAppDefine.DEBUG_MOUSE_LOG)
 		l2dLog("onMouseMove device( x:" + event.clientX + " y:" + event.clientY + " ) view( x:" + vx + " y:" + vy + ")");

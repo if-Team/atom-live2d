@@ -133,24 +133,24 @@ module.exports = {
 			description: "If it is true, the model will see your cursor.",
 			order: 10
 		},
-    followCursorOffsetX: {
-      type: "number",
-      "default": 0,
-      description: "Offset the model's X-axis field of view",
-      order: 11
-    },
-    followCursorOffsetY: {
-      type: "number",
-      "default": 0,
-      description: "Offset the model's Y-axis field of view",
-      order: 12
-    },
-    followCursorCoefficient: {
-      type: "number",
-      "default": 2,
-      description: "Focus distance coefficient (closer to greater)",
-      order: 13
-    }
+		followCursorOffsetX: {
+			type: "number",
+			"default": 0,
+			description: "Offset the model's X-axis field of view",
+			order: 11
+		},
+		followCursorOffsetY: {
+			type: "number",
+			"default": 0,
+			description: "Offset the model's Y-axis field of view",
+			order: 12
+		},
+		followCursorCoefficient: {
+			type: "number",
+			"default": 2,
+			description: "Focus distance coefficient (closer to greater)",
+			order: 13
+		}
 	},
 	timer: null,
 	winkTimer: null,
@@ -240,22 +240,22 @@ module.exports = {
 			this.loadCurrentModel();
 			this.loadMotionGroup();
 			this.iframe.contentWindow.document.body.appendChild(css);
-      if(atom.config.get('atom-live2d.followCursor')) {
-        const workspaceView = atom.views.getView(atom.workspace);
-        workspaceView.addEventListener('mousemove', (e) => {
+			if(atom.config.get('atom-live2d.followCursor')) {
+				const workspaceView = atom.views.getView(atom.workspace);
+				workspaceView.addEventListener('mousemove', (e) => {
 					if(atom.config.get('atom-live2d.followCursor')) {
-            this.callOnWindow('followPointer', e, {
-              screenWidth: workspaceView.clientWidth,
-              screenHeight: workspaceView.clientHeight,
-              spriteWidth: atom.config.get("atom-live2d.width"),
-              spriteHeight: atom.config.get("atom-live2d.height"),
-              spriteOffsetX: atom.config.get("atom-live2d.followCursorOffsetX"),
-              spriteOffsetY: atom.config.get("atom-live2d.followCursorOffsetY"),
-              followCursorCoefficient: atom.config.get("atom-live2d.followCursorCoefficient")
-            });
-          }
+						this.callOnWindow('followPointer', e, {
+							screenWidth: workspaceView.clientWidth,
+							screenHeight: workspaceView.clientHeight,
+							spriteWidth: atom.config.get("atom-live2d.width"),
+							spriteHeight: atom.config.get("atom-live2d.height"),
+							spriteOffsetX: atom.config.get("atom-live2d.followCursorOffsetX"),
+							spriteOffsetY: atom.config.get("atom-live2d.followCursorOffsetY"),
+							followCursorCoefficient: atom.config.get("atom-live2d.followCursorCoefficient")
+						});
+					}
 				});
-      }
+			}
 		};
 
 		var css = document.createElement('style');
