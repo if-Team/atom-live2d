@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const remote = require('remote');
+const url = require('url');
 const browserWindow = remote.BrowserWindow;
 const CronJob = require('cron').CronJob;
 
@@ -192,6 +193,13 @@ module.exports = {
 		this.init();
 		return this.startVoice(new Date);
 	},
+	getFileURL: function(...filePath) {
+		return url.pathToFileURL(path.join(
+			atom.packages.getLoadedPackage("atom-live2d").path,
+			...filePath
+		)).toString();
+	},
+	
 	deactivate: function() {
 		var ref;
 		this.audio = null;
@@ -247,7 +255,7 @@ module.exports = {
 		workspaceView.appendChild(this.element);
 
 		this.iframe = document.createElement('iframe');
-		this.iframe.src = `atom://atom-live2d/index.html`;
+		this.iframe.src = this.getFileURL('index.html');
 		this.iframe.name = `${atom.config.get("atom-live2d.width")};${atom.config.get("atom-live2d.height")}`;
 		this.iframe.id = 'live2d';
 		this.iframe.onload = () => {
@@ -424,7 +432,7 @@ module.exports = {
 		});
 	},
 	loadCurrentModel: function() {
-		this.callOnWindow('atomLive2d', 'atom://atom-live2d/assets/' + atom.config.get('atom-live2d.model'));
+		this.callOnWindow('atomLive2d', this.getFileURL('assets', atom.config.get('atom-live2d.model')));
 		console.log('Evaluating init script...');
 	},
 	callOnWindow: function(funcname, ...args) {
@@ -437,7 +445,7 @@ module.exports = {
 		return path.dirname(atom.config.get('atom-live2d.model'));
 	},
 	getThemeDirUrl: function() {
-		return this.trailingslash('atom://atom-live2d/assets/' + this.getThemeDir());
+		return this.trailingslash(this.getFileURL('assets', this.getThemeDir()));
 	},
 	getThemeDirPath: function() {
 		return path.join(this.getAssetsDirPath(), this.getThemeDir());
